@@ -68,18 +68,44 @@ $(document).ready(function(){
 *      Carga Área                            *
 * * * * * * * * * * * * * * * * *  * * * * * */
 	$( "#regArea" ).click(function() {
-		$("#contenido").load("html/regArea.php");
+		$("#contenido").load("html/regArea.html");
 		
+	/*para llenar el combobox desde la BD*/
+		$.ajax({
+			url: url_servicio, 
+        	data: JSON.stringify ({
+	            jsonrpc:'2.0',
+	            method:'combobox', 
+	            params:[], 
+	            id:"jsonrpc"
+        	}),
+        	type:"POST",
+	        dataType:"JSON", 
+	        success:  function(data) { 
+				$("#select").html();
+				var contenido = "<select>";
+				$.each(data.result, function(i, item){
+					var elemento = "<option value = '" + item.id_claveEdi + "'>" + item.nomEdf + "</option>";
+					contenido += elemento;
+				});
+				contenido +="</select>";
+				$("#select").html(contenido);
+	        },
+	        error: function (err)  {
+	            alert ("No se pudo realizarbb la operación"); 
+	        }
+		});
+	/*Evento alpresionar el boton Aceptar*/
 	$( "#contenido" ).on("submit", "#Form_Reg", function(event){
 		// Para evitar que desaparesca el formulario al presionar el botón
 		event.preventDefault();
 		//Para guardar los datos ingresados en las cajas de texto
 		$.ajax({
-			url: url_servicio, 
-        	data: JSON.stringify ({
+	       	  url: url_servicio, 
+               	  data: JSON.stringify ({
 	            jsonrpc:'2.0',
-	            method:'RegEdificio', //Nombre del método remoto
-	            params:[$("#NomEdi").val()], //parametros que necesita el metodo remoto
+	            method:'RegArea', //Nombre del método remoto
+	            params:[$("#ClavArea").val(),$("#NomArea").val(),$("#select").val()], //parametros que necesita el metodo remoto
 	            id:"jsonrpc"
         	}),
         	
@@ -97,7 +123,6 @@ $(document).ready(function(){
 	            alert ("No se pudo realizar la operación"); //si el metodo responde con un error
 	        }
 		});
-	});	
 		
 		
 	});		
