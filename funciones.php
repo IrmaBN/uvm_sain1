@@ -67,17 +67,19 @@
 		 //*LLENAR EL COMBOBOX*//
 	     function combobox()
 		 {
-			 $sql='SELECT * FROM edificio';
-			 $this->db->query($sql)->execute();
-			 $rows=$this->fetchAll();
-		 return rows;
+			$sql='SELECT * FROM edificio';
+			$result = $this->db->query($sql)->execute();
+			return $this->ConvertirArray($result);
 		 }	
 		 
 		 //debolver todo la lista de Areas
 		function DatosArea($idArea) {
-			$sql="SELECT * FROM area WHERE id_claveArea = $idArea LIMIT 1";
+			$sql="SELECT a.id_claveArea, a.nomArea, e.id_claveEdi 
+				  FROM area a 
+				  INNER JOIN edificio e 
+				  ON a.id_claveArea=e.id_claveEdi 
+				  WHERE a.id_claveArea=e.id_claveEdi";
 			$result=$this->db->query($sql)->execute();
-			
 			return $result->current();
 		}	
 		
@@ -92,13 +94,21 @@
 		  * return Área
 		  */
 		  //@retirn idArea
-		 function RegArea ($idArea,$nArea){
+		 function RegArea ($id_Area,$nArea,$nomEdi){
+			$sql1="SELECT id_claveEdi FROM edificio WHERE $nomEdi=nomEdf LIMIT 1";
 		 	$sql="INSERT INTO area(id_claveArea, nomArea, id_claveEdi)
-		 	VALUES('$nEdificio')";
+		 	VALUES('$id_Area,$nArea,$sql1')";
 			$this->db->query($sql, Adapter::QUERY_MODE_EXECUTE);
-			$idEdificio = $this->db->getDriver()->getLastGeneratedValue();
-			
-			return $this->DatosEdificio($idEdificio);
-		 }	
+			$idArea = $this->db->getDriver()->getLastGeneratedValue();
+			return $this->DatosArea($idArea);
+		 }
+		 function ConvertirArray($result){
+			//convertir el resultado a arreglo
+		  	$arreglo = array();  
+		  	foreach ($result as $row){
+				$arreglo[] = $row;
+		  	}
+		  	return $arreglo;
+		}	
 	}
 ?>
